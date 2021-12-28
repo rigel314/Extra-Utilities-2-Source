@@ -10,6 +10,8 @@ buildscript {
 
 apply plugin: 'net.minecraftforge.gradle'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
 // ext.priv = parseConfig(file('../1.10.2/private.properties'))
 ext.version_config = parseConfig(file('../1.10.2/version.properties'))
 
@@ -151,8 +153,6 @@ dependencies {
 
 }
 
-sourceSets.main.java.srcDirs = ['../1.10/src']
-
 // repositories {
 //     maven {
 //         name = "thiakil"
@@ -199,7 +199,7 @@ dependencies {
 jar {
     manifest {
         attributes([
-            "FMLAT": "extrautils2_at.cfg",
+            // "FMLAT": "extrautils2_at.cfg",
             "Specification-Title": "ExtraUtils2",
             "Specification-Vendor": "ExtraUtils2",
             "Specification-Version": "1", // We are version 1 of ourselves
@@ -216,6 +216,19 @@ jar {
 jar.finalizedBy('reobfJar')
 // However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
 //publish.dependsOn('reobfJar')
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+        }
+    }
+    repositories {
+        maven {
+            url "file:///${project.projectDir}/mcmodsrepo"
+        }
+    }
+}
 
 // // Create deobf dev jars
 // task deobfJar(type: Jar) {
@@ -241,23 +254,23 @@ jar.finalizedBy('reobfJar')
 //     archives sourcesJar
 // }
 
-// sourceSets {
-//     main {
-//         java {
-//             srcDir 'src/main/java'
-//             srcDir '../1.10.2/src/main/java'
-//         }
-//         resources {
-//             srcDir '../1.10.2/src/main/resources'
-//         }
-//     }
-//     api{
-//         java {
-//             srcDir '../1.10.2/src/api/java'
-//         }
-//     }
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+            srcDir '../1.10.2/src/main/java'
+        }
+        resources {
+            srcDir '../1.10.2/src/main/resources'
+        }
+    }
+    api{
+        java {
+            srcDir '../1.10.2/src/api/java'
+        }
+    }
 
-// }
+}
 
 
 // curseforge {

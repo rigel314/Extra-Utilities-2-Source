@@ -10,6 +10,8 @@ buildscript {
 
 apply plugin: 'net.minecraftforge.gradle'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
 // ext.priv = parseConfig(file('../1.10.2/private.properties'))
 ext.version_config = parseConfig(file('../1.10.2/version.properties'))
 
@@ -40,7 +42,7 @@ minecraft {
     mappings channel: 'snapshot', version: '20171003-1.12'
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
     
-    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    accessTransformer = file('src/main/resources/META-INF/extrautils2_at.cfg')
 
     // Default run configurations.
     // These can be tweaked, removed, or duplicated as needed.
@@ -86,13 +88,17 @@ dependencies {
     // These dependencies get remapped to your current MCP mappings
     // deobf 'com.mod-buildcraft:buildcraft:6.0.8:dev'
 
+    implementation fg.deobf("CraftTweaker2:CraftTweaker2-API:4.1.9.6")
+    implementation fg.deobf("mezz.jei:jei_1.12.2:4.12.1.217")
+    implementation fg.deobf("slimeknights.mantle:Mantle:1.12-1.3.1.22")
+    implementation fg.deobf("slimeknights:TConstruct:1.12-2.7.2.508")
+    implementation fg.deobf("com.azanor.baubles:Baubles:1.12-1.5.2")
+
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
 }
-
-sourceSets.main.java.srcDirs = ['../1.10/src']
 
 repositories {
     maven {
@@ -106,20 +112,33 @@ repositories {
         url "https://maven.blamejared.com"
     }
 }
+// repositories {
+//     maven {
+//         url 'https://www.cursemaven.com'
+//         // FG4: It's recommended to uncomment the following block
+//         // content {
+//         //     includeGroup "curse.maven"
+//         // }
+//     }
+// }
 
-
-dependencies {
-    compileOnly fg.deobf("CraftTweaker2:CraftTweaker2-API:4.1.9.6")
-    // runtimeOnly fg.deobf("CraftTweaker2:CraftTweaker2-API:4.1.9.6")
-    compileOnly fg.deobf("mezz.jei:jei_1.12.2:4.12.1.217")
-    // runtimeOnly fg.deobf("mezz.jei:jei_1.12.2:4.12.1.217")
-    compileOnly fg.deobf("slimeknights.mantle:Mantle:1.12-1.3.1.22")
-    // runtimeOnly fg.deobf("slimeknights.mantle:Mantle:1.12-1.3.1.22")
-    compileOnly fg.deobf("slimeknights:TConstruct:1.12-2.7.2.508")
-    // runtimeOnly fg.deobf("slimeknights:TConstruct:1.12-2.7.2.508")
-    compileOnly fg.deobf("com.azanor.baubles:Baubles:1.12-1.5.2")
-    // runtimeOnly fg.deobf("com.azanor.baubles:Baubles:1.12-1.5.2")
-}
+// dependencies {
+//     implementation fg.deobf("CraftTweaker2:CraftTweaker2-API:4.1.9.6")
+//     // compileOnly fg.deobf("CraftTweaker2:CraftTweaker2-API:4.1.9.6")
+//     // runtimeOnly fg.deobf("CraftTweaker2:CraftTweaker2-API:4.1.9.6")
+//     implementation fg.deobf("mezz.jei:jei_1.12.2:4.12.1.217")
+//     // compileOnly fg.deobf("mezz.jei:jei_1.12.2:4.12.1.217")
+//     // runtimeOnly fg.deobf("mezz.jei:jei_1.12.2:4.12.1.217")
+//     implementation fg.deobf("slimeknights.mantle:Mantle:1.12-1.3.1.22")
+//     // compileOnly fg.deobf("slimeknights.mantle:Mantle:1.12-1.3.1.22")
+//     // runtimeOnly fg.deobf("slimeknights.mantle:Mantle:1.12-1.3.1.22")
+//     implementation fg.deobf("slimeknights:TConstruct:1.12-2.7.2.508")
+//     // compileOnly fg.deobf("slimeknights:TConstruct:1.12-2.7.2.508")
+//     // runtimeOnly fg.deobf("slimeknights:TConstruct:1.12-2.7.2.508")
+//     implementation fg.deobf("com.azanor.baubles:Baubles:1.12-1.5.2")
+//     // compileOnly fg.deobf("com.azanor.baubles:Baubles:1.12-1.5.2")
+//     // runtimeOnly fg.deobf("com.azanor.baubles:Baubles:1.12-1.5.2")
+// }
 
 
 // processResources {
@@ -163,6 +182,19 @@ jar.finalizedBy('reobfJar')
 // However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
 //publish.dependsOn('reobfJar')
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifact jar
+        }
+    }
+    repositories {
+        maven {
+            url "file:///${project.projectDir}/mcmodsrepo"
+        }
+    }
+}
+
 // // Create deobf dev jars
 // task deobfJar(type: Jar) {
 //     from sourceSets.main.output
@@ -187,23 +219,23 @@ jar.finalizedBy('reobfJar')
 //     archives sourcesJar
 // }
 
-// sourceSets {
-//     main {
-//         java {
-//             srcDir 'src/main/java'
-//             srcDir '../1.10.2/src/main/java'
-//         }
-//         resources {
-//             srcDir '../1.10.2/src/main/resources'
-//         }
-//     }
-//     api{
-//         java {
-//             srcDir '../1.10.2/src/api/java'
-//         }
-//     }
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/java'
+            srcDir '../1.10.2/src/main/java'
+        }
+        resources {
+            srcDir '../1.10.2/src/main/resources'
+        }
+    }
+    api{
+        java {
+            srcDir '../1.10.2/src/api/java'
+        }
+    }
 
-// }
+}
 
 
 // curseforge {
